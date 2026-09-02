@@ -1,0 +1,5 @@
+work/
+target/
+*.log
+/tmp/
+.DS_Store

@@ -1,0 +1,10 @@
+target/
+**/target/
+**/*.rs.bk
+**/*.wasm
+.DS_Store
+.env
+node_modules/
+**/dist/
+**/pkg/
+**/Cargo.lock

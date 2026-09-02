@@ -1,0 +1,18 @@
+[package]
+name = "fiber-rgb-swap-backend"
+version = "0.1.0"
+edition = "2021"\nauthors = ["Fiber RGB++ Swap"]
+
+[dependencies]
+actix-cors = "0.7"
+actix-web = "4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+ckb-sdk = "0.103"
+ckb-types = "0.103"
+log = "0.4"
+env_logger = "0.10"
+futures = "0.3"

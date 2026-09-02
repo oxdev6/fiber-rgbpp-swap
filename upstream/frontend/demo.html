@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fiber RGB++ Swap — Demo</title>
+  <link rel="stylesheet" href="./static/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="header">
+        <div class="brand">
+          <div class="logo"></div>
+          <div>
+            <h1>Fiber RGB++ Swap</h1>
+          </div>
+        </div>
+      </div>
+
+      <section class="panel">
+        <p class="eyebrow">Initiate swap</p>
+        <div class="row">
+          <div>
+            <label for="offerer_address">Offerer CKB address</label>
+            <input id="offerer_address" placeholder="Offerer CKB address" />
+          </div>
+          <div>
+            <label for="offerer_asset_type">Offerer asset</label>
+            <input id="offerer_asset_type" placeholder="Offerer asset" />
+          </div>
+          <div>
+            <label for="counterparty_address">Counterparty CKB address</label>
+            <input id="counterparty_address" placeholder="Counterparty CKB address" />
+          </div>
+          <div>
+            <label for="counterparty_asset_type">Counterparty asset</label>
+            <input id="counterparty_asset_type" placeholder="Counterparty asset" />
+          </div>
+          <div class="full">
+            <label for="amount">Amount</label>
+            <input id="amount" placeholder="Amount" />
+          </div>
+        </div>
+        <div class="panel-actions">
+          <button id="init" class="primary">Initiate</button>
+          <button id="openIndex" class="btn-ghost">Open real frontend</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <p class="eyebrow">Controls</p>
+        <div class="panel-actions">
+          <button id="health" class="secondary">Check backend /api/health</button>
+          <button id="list" class="secondary">Refresh swap list</button>
+        </div>
+        <div class="row">
+          <div>
+            <label for="swapIdInput">Swap ID to query</label>
+            <input id="swapIdInput" placeholder="Swap ID to query" />
+          </div>
+          <div class="panel-actions">
+            <button id="statusBtn" class="secondary">Get status</button>
+            <button id="rawBtn" class="secondary">Get raw</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <p class="eyebrow">Response</p>
+        <pre id="out" class="code-block">Ready.</pre>
+      </section>
+
+      <section class="panel">
+        <p class="eyebrow">Swap list</p>
+        <table id="swapTable" class="swap-table">
+          <thead>
+            <tr><th>ID</th><th>Phase</th><th>Status</th><th>Last update</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const out = document.getElementById('out');
+
+    async function showResponse(resp) {
+      try {
+        const txt = await resp.text();
+        out.textContent = `HTTP ${resp.status}\n\n${txt}`;
+      } catch (e) {
+        out.textContent = `Error reading response: ${e}`;
+      }
+    }
+
+    document.getElementById('health').addEventListener('click', async () => {
+      out.textContent = 'Contacting backend...';
+      try {
+        const r = await fetch('http://127.0.0.1:8080/api/health');
+        await showResponse(r);
+      } catch (e) {
+        out.textContent = `Error: ${e}`;
+      }
+    });
+
+    document.getElementById('list').addEventListener('click', async () => {
+      out.textContent = 'Fetching swaps...';
+      try {
+        const r = await fetch('http://127.0.0.1:8080/api/swap');
+        if (r.ok) {
+          const arr = await r.json();
+          const tbody = document.querySelector('#swapTable tbody');
+          tbody.innerHTML = '';
+          arr.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${item.swap_id}</td><td>${item.phase}</td><td>${item.status}</td><td>${item.last_update}</td>`;
+            tbody.appendChild(tr);
+          });
+          out.textContent = `Loaded ${arr.length} swaps`;
+        } else {
+          await showResponse(r);
+        }
+      } catch (e) {
+        out.textContent = `Error: ${e}`;
+      }
+    });
+
+    document.getElementById('statusBtn').addEventListener('click', async () => {
+      const id = document.getElementById('swapIdInput').value.trim();
+      if (!id) { out.textContent = 'Enter a swap ID first'; return; }
+      out.textContent = 'Fetching status...';
+      try {
+        const r = await fetch(`http://127.0.0.1:8080/api/swap/${id}`);
+        await showResponse(r);
+      } catch (e) {
+        out.textContent = `Error: ${e}`;
+      }
+    });
+
+    document.getElementById('rawBtn').addEventListener('click', async () => {
+      const id = document.getElementById('swapIdInput').value.trim();
+      if (!id) { out.textContent = 'Enter a swap ID first'; return; }
+      out.textContent = 'Fetching raw...';
+      try {
+        const r = await fetch(`http://127.0.0.1:8080/api/swap/${id}/raw`);
+        await showResponse(r);
+      } catch (e) {
+        out.textContent = `Error: ${e}`;
+      }
+    });
+
+    document.getElementById('init').addEventListener('click', async () => {
+      const body = {
+        offerer_address: document.getElementById('offerer_address').value,
+        offerer_asset_type: document.getElementById('offerer_asset_type').value || 'RGB++',
+        counterparty_address: document.getElementById('counterparty_address').value,
+        counterparty_asset_type: document.getElementById('counterparty_asset_type').value || 'RGB++',
+        amount: Number(document.getElementById('amount').value) || 100000000
+      };
+      out.textContent = 'Initiating swap...';
+      try {
+        const r = await fetch('http://127.0.0.1:8080/api/swap/initiate', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+        });
+        const json = await r.json();
+        out.textContent = `HTTP ${r.status}\n\n${JSON.stringify(json, null, 2)}`;
+        if (r.ok && json.swap_id) {
+          document.getElementById('swapIdInput').value = json.swap_id;
+        }
+      } catch (e) {
+        out.textContent = `Error: ${e}`;
+      }
+    });
+
+    document.getElementById('openIndex').addEventListener('click', () => {
+      alert('To run the full Yew frontend, install trunk and run `trunk serve` in the frontend folder.');
+    });
+  </script>
+</body>
+</html>

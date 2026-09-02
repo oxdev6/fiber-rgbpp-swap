@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "backend",
+    "frontend",
+]
+
+[workspace.metadata]
+package = "fiber-rgb-swap"

@@ -1,0 +1,313 @@
+body {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at top, #17212b 0%, #0b0f17 50%, #05070b 100%);
+  color: #e6edf6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.card {
+  width: min(960px, 100%);
+  background: rgba(14, 22, 36, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+}
+
+h1 {
+  margin-bottom: 0.5rem;
+  font-size: clamp(2rem, 2.5vw, 2.8rem);
+}
+
+p {
+  margin: 0 0 1.5rem;
+  line-height: 1.75;
+  color: #cbd5e1;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #9bb0d6;
+  font-size: 0.95rem;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 15, 29, 0.92);
+  color: #f8fafc;
+  font: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+button {
+  width: auto;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #5b8dff;
+  box-shadow: 0 0 0 4px rgba(91, 141, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+button {
+  margin-top: 1rem;
+  cursor: pointer;
+  background: linear-gradient(135deg, #407cff 0%, #1f5bff 100%);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  align-items: center;
+}
+
+.swap-table tbody tr {
+  cursor: pointer;
+}
+
+.row {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.full {
+  grid-column: span 2;
+}
+
+.status {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: pre-wrap;
+}
+
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .full {
+    grid-column: auto;
+  }
+}
+
+.swap-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.swap-table th,
+.swap-table td {
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.swap-table th {
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+}
+
+.swap-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2f6fff, #5b8dff);
+  box-shadow: 0 16px 40px rgba(47, 111, 255, 0.28);
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7ca7ff;
+  margin-bottom: 0.25rem;
+}
+
+.muted {
+  color: #9bb0d6;
+  margin-top: 0.35rem;
+  line-height: 1.5;
+}
+
+.top-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-ghost {
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: #e6edf6;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.primary {
+  background: linear-gradient(135deg, #4f7aff, #2b5bff);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 0.95rem 1.25rem;
+}
+
+.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #dbeafe;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 1.5rem;
+}
+
+.panel h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.panel-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.info-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(14, 22, 36, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.code-block {
+  background: rgba(12, 18, 32, 0.9);
+  border-radius: 16px;
+  padding: 1rem;
+  color: #dbeafe;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0.5rem 0;
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  color: #dbeafe;
+  cursor: pointer;
+}
+
+@media (max-width: 920px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .full {
+    grid-column: auto;
+  }
+}
+
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  margin-bottom:1rem;
+}
+.brand {
+  display:flex;align-items:center;gap:0.75rem
+}
+.logo {
+  width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#5b8dff,#2b6cff);display:inline-block
+}
+.badge {display:inline-block;padding:0.25rem 0.6rem;border-radius:999px;font-weight:700;font-size:0.85rem}
+.badge.phase {background:rgba(91,141,255,0.12);color:#79a6ff}
+.badge.ok {background:rgba(34,197,94,0.12);color:#86efac}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#dbeafe;padding:0.5rem 0.75rem;border-radius:10px}
+.muted{color:#9aaecb}
+.code-block{background:#071022;border-radius:12px;padding:1rem;color:#cbd5e1;overflow:auto;max-height:28vh}
+.copy-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);padding:0.4rem 0.6rem;border-radius:8px;margin-left:0.5rem}
+.swap-table tbody tr{cursor:pointer}
