@@ -1,47 +1,134 @@
-# Fiber RGB++ Swap — Spark Program (Approved, Revised)
+# Fiber RGB++ Swap
 
-**Approved scope:** Revised Budget — $500, 4 weeks (Post #20, https://talk.nervos.org/t/spark-program-fiber-rgb-swap/10487/20) — supersedes original $1000/6-week proposal (Post #1).
+A market and discovery layer for Fiber Network’s Cross-Chain Hub, enabling operators to advertise swap rates for RGB++ assets and clients to discover them before swapping.
 
-**Grant payout:** 609,757 CKB at $0.00082/CKB (Post #21). Status: `In-Progress`.
+Fiber already carries RGB++ assets as a native channel asset type. This project adds the missing piece: a gossip-broadcast market where hubs advertise supported pairs and clients discover the best offer.
 
-**One-sentence summary (original):** Atomic path RGB++ asset (Bitcoin-locked via single-use-seal) → leap to standard CKB UDT → Fiber channel swap for target CKB asset. **Revised scope isolates the advertisement/discovery layer** as the funded deliverable; leap+swap execution is out-of-scope for this Spark grant and deferred to a follow-on.
+## Overview
 
-## Revised Timeline & Budget (Authoritative)
+- **SwapAdvertisement** — a signed, expirable gossip message carrying an asset pair (base UDT ↔ quote UDT), rate, fee, operator pubkey, timestamp and expiry.
+- **Gossip integration** — new `BroadcastMessage` union id `3` on Fiber’s `NodeAnnouncement`/`ChannelAnnouncement`/`ChannelUpdate` cursor stream, relayed via `GetBroadcastMessages` / `BroadcastMessagesFilterResult` and pruned on expiry.
+- **Discovery index** — listening-side `SwapAdIndex` that filters `is_expired`, matches `Script` pair, and sorts by `rate` desc; `list_offers(filter)` and `best_rate(pair)` are exposed via RPC and CLI.
 
-| Week | Budget | Work |
-|------|--------|------|
-| Week 1 — Design and setup | $100 | Stand up CKB + Fiber testnet nodes (fnn), study `fiber-lib` existing gossip code (`BroadcastMessage`/`GossipMessage` types), finalize `SwapAdvertisement` message schema (asset pair, rate, fee, operator pubkey, signature, expiry) |
-| Week 2 — Gossip integration | $150 | Implement `SwapAdvertisement` signing/verification, wire into `fiber-lib` broadcast/relay path as new message type. Highest-effort (touches core gossip) |
-| Week 3 — Discovery index & interface | $150 | Build listening-side index (`list_offers()`, `best_rate(pair)`), expose via API endpoint, wire CLI to query live advertisements |
-| Week 4 — Testing, demo, documentation | $100 | Two-node broadcast/discovery test, record short demo, write setup docs for running own advertising node, post write-up to Discussion #1243 |
-| **Total** | **$500** | Dev time only, no hardware/third-party |
+All messages are opt-in: only nodes running this build relay advertisements; stock nodes ignore the new union id and continue normally.
 
-## What This Project IS and IS NOT (per revision)
+## Architecture
 
-- **IS:** Gossip-layer market/discovery for Fiber CCH — signed `SwapAdvertisement` broadcast via existing peer gossip (same mechanism as `NodeAnnouncement`/`ChannelAnnouncement`/`ChannelUpdate`), relay + discovery index. Opt-in extended Fiber node required for participants; unmodified nodes unaffected (same pattern as CCH itself).
-- **IS NOT (for this grant):** Full leap+swap orchestration, JS client wrapper beyond CLI query, edge-case failure recovery demos, mainnet, audit, second asset pair beyond first RGB++/CKB pair. Those remain in original 6-week design (see `docs/proposal-original.md`) as future work.
+```
+Client (curl / fnn-cli)
+      │  publish / list / get_best
+      ▼
+  RPC (swap_ad) ──► Store (GossipMessageStore)
+      │                ▲
+      ▼                │ get_broadcast_messages(after_cursor)
+  Gossip (BroadcastMessage::SwapAdvertisement)
+   /     \
+PeerFilter  GossipSyncingActor
+  │           │
+  ▼           ▼
+NetworkGraph (ignores swap ads)   Peer Store
+```
 
-## Technical Context (distilled, scope-relevant)
+- **Molecule:** `crates/fiber-types/src/schema/gossip.mol` `table SwapAdvertisement { signature EcdsaSignature, chain_hash Byte32, base_udt_script ScriptOpt, quote_udt_script ScriptOpt, rate Uint128, fee_rate Uint128, operator_pubkey Pubkey, timestamp Uint64, expiry Uint64 }`
+- **Signing:** `blake2b_256` of `SwapAdvertisement` without `signature` → ECDSA secp256k1 (`Privkey::sign`), `verify` checks `rate !=0`, `expiry > timestamp`, and `!is_expired(now)`.
+- **Cursor:** `Cursor::new(timestamp, SwapAdvertisement(blake2b_256(message_to_sign)))` (`hash` 32 + 4 zero pad, 45 bytes).
+- **Store:** `GossipMessageStore::save_swap_advertisement` + `get_swap_advertisements(after_cursor, limit)` + `get_active_swap_advertisements(now)` in `crates/fiber-lib/src/store/store_impl/mod.rs`.
 
-- **Fiber gossip:** `crates/fiber-lib/src/fiber/gossip.rs`, `BroadcastMessage`/`GossipMessage` cursor stream, `NodeAnnouncement`/`ChannelAnnouncement`/`ChannelUpdate` via `ExtendedGossipMessageStore`. New type follows same signing/verification and relay/refresh cycle.
-- **SwapAdvertisement schema (to finalize W1):** asset pair (e.g., RGB++ xUDT type script ↔ target CKB UDT type script), rate, fee, operator pubkey, signature over message, expiry timestamp (stale-offer pruning).
-- **CCH background:** Currently hard-coded to one pair (BTC ↔ wrapped-BTC 1:1) — Discussion #1243. Team-proposed fix: operators broadcast signed ads. This project implements that fix.
-- **RGB++ relevance:** Lock conflict (RGB++ lock vs Fiber `FundingLock` 2-of-2) forces leap before channel entry — explains *why* ad pair is RGB++-derived UDT, but leap itself is not built here.
+## Features
 
-## References
-- Approved thread: https://talk.nervos.org/t/spark-program-fiber-rgb-swap/10487
-- Revised budget post: https://talk.nervos.org/t/spark-program-fiber-rgb-swap/10487/20
-- Payout post: https://talk.nervos.org/t/spark-program-fiber-rgb-swap/10487/21
-- Original CCH gap discussion: `nervosnetwork/fiber` Discussion #1243
-- Prior art analogy: Lightning Liquidity Ads
+- Signed, expirable advertisements with `chain_hash` replay protection
+- Gossip broadcast via existing `TryBroadcastMessages` / `GetBroadcastMessages` / `BroadcastMessagesFilterResult` paths
+- `is_expired` pruning and `rate` desc sorting
+- RPC `publish_swap_advertisement`, `list_swap_advertisements`, `get_best_swap_rate` and `fnn-cli swap_ad` group
 
-## Folder Layout
-- `docs/proposal-revised.md` — Posts #20-#21 verbatim (authoritative $500/4w)
-- `docs/context.md` — Distilled scope-only understanding
-- `docs/upstream.md` — Starter repo `oxdev6/Fiber-RGB-Swap` (`upstream/`) structure & gap to scope
-- `docs/implementation-plan-week1-2.md` — **W1+W2 step-by-step plan (small manageable steps)**
-- `docs/references.md` — Links + local code pointers
-- `upstream/` — Local clone of starter (Actix+Yew mocked scaffold) — starting point per instruction
-- `docs/gossip-notes.md` / `docs/schema-draft.md` / `docs/week1-checkpoint.md` / `docs/week2-smoke.md` — to be created in W1-2
+## Getting Started
 
-> Status: **Context + W1-2 plan captured, ready. No implementation started** — awaiting go-ahead.
+### Build
+
+```bash
+cargo build -p fiber-bin --features sqlite
+cargo build -p fnn-cli
+# or
+cargo check -p fnn --features sqlite
+cargo test -p fiber-types
+```
+
+Toolchain `1.95.0` (`rust-toolchain.toml`).
+
+### Run two local nodes (testnet)
+
+```bash
+mkdir -p work/fnn-a/ckb work/fnn-b/ckb
+openssl rand -hex 32 > work/fnn-a/ckb/key
+openssl rand -hex 32 > work/fnn-b/ckb/key
+# configs at work/fnn-a/config.yml (8828/8327) and work/fnn-b/config.yml (8829/8328), chain: testnet, ckb.rpc_url https://testnet.ckbapp.dev/
+FIBER_SECRET_KEY_PASSWORD=test123 ./target/debug/fnn -c work/fnn-a/config.yml -d work/fnn-a &
+FIBER_SECRET_KEY_PASSWORD=test123 ./target/debug/fnn -c work/fnn-b/config.yml -d work/fnn-b &
+```
+
+### Publish and discover
+
+```bash
+# Hub publishes (8327)
+curl -X POST http://127.0.0.1:8327 -H "Content-Type: application/json" \
+  -d '{"id":1,"jsonrpc":"2.0","method":"publish_swap_advertisement","params":[{"base_udt_script":null,"quote_udt_script":null,"rate":"0x2540be400","fee_rate":"0xbb8","expiry_delta_millis":"0x5265c00"}]}'
+
+# List on hub
+curl -X POST http://127.0.0.1:8327 -d '{"id":1,"jsonrpc":"2.0","method":"list_swap_advertisements","params":[{"base_udt_script":null,"quote_udt_script":null}]}'
+
+# Connect hub → listener
+curl -X POST http://127.0.0.1:8327 -d '{"id":1,"jsonrpc":"2.0","method":"connect_peer","params":[{"address":"/ip4/127.0.0.1/tcp/8829/p2p/<peer-id>"}]}'
+
+# List on listener after 5s (first batch) — same offer appears
+curl -X POST http://127.0.0.1:8328 -d '{"id":1,"jsonrpc":"2.0","method":"list_swap_advertisements","params":[{"base_udt_script":null,"quote_udt_script":null}]}'
+
+# Best rate
+curl -X POST http://127.0.0.1:8328 -d '{"id":1,"jsonrpc":"2.0","method":"get_best_swap_rate","params":[{"base_udt_script":null,"quote_udt_script":null}]}'
+```
+
+Via CLI:
+
+```bash
+fnn-cli --url http://127.0.0.1:8327 swap_ad publish_swap_advertisement --rate 10000000000 --fee-rate 3000 --expiry-delta-millis 86400000
+fnn-cli --url http://127.0.0.1:8328 swap_ad list_swap_advertisements
+fnn-cli --url http://127.0.0.1:8328 swap_ad get_best_swap_rate
+```
+
+`rate` is quote per base * 1e8.
+
+## Project Structure
+
+```
+docs/                          # design, gossip notes, schema, checkpoints, smoke logs
+work/fiber/                    # fork of nervosnetwork/fiber at 04e091b0, branch feat/swap-advertisement
+  crates/fiber-types/src/schema/gossip.mol
+  crates/fiber-types/src/protocol.rs (SwapAdvertisement)
+  crates/fiber-lib/src/fiber/swap_advertisement.rs (SwapAdIndex)
+  crates/fiber-lib/src/rpc/swap_ad.rs
+  crates/fiber-json-types/src/swap_ad.rs
+upstream/                      # starter Actix+Yew scaffold (oxdev6/Fiber-RGB-Swap)
+work/fnn-a/ work/fnn-b/         # local testnet configs and stores (bootnode_addrs: [] for local)
+```
+
+## RPC
+
+- `publish_swap_advertisement(PublishSwapAdParams) -> SwapOffer`
+- `list_swap_advertisements(ListSwapAdsParams) -> ListSwapAdsResult { offers: SwapOffer[] }`
+- `get_best_swap_rate(GetBestSwapRateParams) -> GetBestSwapRateResult { offer: SwapOffer | null }`
+
+All `*Params` use `Option<Script>` (`ckb_jsonrpc_types::Script`) with `U128Hex`/`U64Hex` for `u128`/`u64`.
+
+## Development
+
+```bash
+cargo check -p fnn --features sqlite
+cargo test -p fiber-types
+cargo test -p fnn --lib swap_advertisement -- --nocapture
+cargo check -p fnn-cli
+```
+
+Two-node smoke is in `docs/week3-smoke.md` (`publish` → `list` → `connect` → `list` → `get_best`).
+
+## License
+
+MIT
