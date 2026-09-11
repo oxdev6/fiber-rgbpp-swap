@@ -96,6 +96,22 @@ fnn-cli --url http://127.0.0.1:8328 swap_ad get_best_swap_rate
 
 `rate` is quote per base * 1e8.
 
+## Visual Board (for everyone)
+
+No Rust needed to see it work — open the one-file web UI:
+
+```bash
+cd demo && python3 -m http.server 8000
+# open http://127.0.0.1:8000 in a browser (nodes must be running)
+```
+
+The left card is the hub (publish form + its book), the right card is the
+listener (its book, auto-refreshed every 5s, plus the best rate). Publish on
+the left, peer the nodes, and watch the right card fill in over gossip —
+both books converging is the whole demo. Plain-language labels throughout;
+rates shown as ordinary numbers. Nodes need `cors_enabled: true` in the
+`rpc:` section of their config (already set in `work/fnn-*/config.yml`).
+
 ## Project Structure
 
 ```
