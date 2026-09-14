@@ -1,11 +1,11 @@
-# Demo Recording Script — Swap-Ad Discovery (W3/W4 showcase)
+# Demo Recording Script — UI Edition (W4 showcase)
 
-Goal of the video: prove a hub can advertise a swap rate and a second node
-discovers it over gossip, then picks the best rate. Total ~5 min.
-Record one terminal, large font. Each step has SHOW (commands) and SAY
-(word-for-word narration, plain language).
+Goal: prove the swap-ad market using only the web board at
+`http://127.0.0.1:8000` — no terminal on camera except the final stop.
+Total ~4 min. Browser full-window, zoom to ~125%. Each step has SHOW
+(what to do/click) and SAY (word-for-word narration).
 
-## Setup (do BEFORE hitting record)
+## Setup (do BEFORE hitting record, off camera)
 
 ```bash
 cd /home/agate/Projects/fiber-rgbpp-swap
@@ -13,167 +13,124 @@ pkill -f "target/debug/fnn -c"; sleep 2
 rm -rf work/fnn-a/fiber/store/* work/fnn-b/fiber/store/*
 FIBER_SECRET_KEY_PASSWORD=test123 ./work/fiber/target/debug/fnn -c work/fnn-a/config.yml -d work/fnn-a > /tmp/fnn-a.log 2>&1 &
 FIBER_SECRET_KEY_PASSWORD=test123 ./work/fiber/target/debug/fnn -c work/fnn-b/config.yml -d work/fnn-b > /tmp/fnn-b.log 2>&1 &
+# wait 3–5 min until: ss -tlnp | grep -E "8327|8328|8828|8829"  → 4 lines
+cd demo && (python3 -m http.server 8000 > /tmp/demo-ui.log 2>&1 &) ; cd ..
 ```
 
-Wait 3–5 min until all four ports listen (P2P first, RPC later):
-
-```bash
-ss -tlnp | grep -E "8327|8328|8828|8829"
-# expect 4 lines: 8828, 8829, 8327, 8328
-```
+Open `http://127.0.0.1:8000`, reload once, confirm both status dots are
+green and both books read *"No offers yet"*. Start recording.
 
 ## Record from here
 
-### SHOT 0 — Intro (facecam or title card, no commands)
+### SHOT 0 — Intro (facecam or title card)
 
 SAY:
 
-> "Fiber already moves assets fast off-chain, and RGB++ brings Bitcoin
-> assets onto CKB. What's missing is a way to find out who will swap what,
-> at what rate. So I built a market layer: hubs broadcast signed ads over
-> gossip, wallets just listen. Let me show you it working with two nodes on
-> my machine."
+> "Fiber moves assets fast off-chain, and RGB++ brings Bitcoin assets onto
+> CKB. What's missing is a way to find out who will swap what, at what
+> rate. So I built a market board: hubs broadcast signed offers, wallets
+> just listen. This page is talking to two live nodes on my machine — let's
+> watch it happen."
 
-### SHOT 1 — Both nodes are alive, listener starts empty (10s)
+### SHOT 1 — The empty board (15s)
 
-SHOW:
-
-```bash
-curl -s -m 10 -X POST http://127.0.0.1:8327 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"node_info","params":[]}' | head -c 250; echo
-curl -s -m 10 -X POST http://127.0.0.1:8328 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"node_info","params":[]}' | head -c 250; echo
-curl -s -m 15 -X POST http://127.0.0.1:8328 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"list_swap_advertisements","params":[{"base_udt_script":null,"quote_udt_script":null}]}'
-# expect {"offers":[]}
-```
+SHOW: Slow scroll from the journey strip down through both cards. Hover the
+two green dots. Point at both *"No offers yet"* states.
 
 SAY:
 
-> "This is the hub on port 8327, and this is the listener on 8328. Same
-> software, fresh databases. And look — the listener's offer book is empty.
-> It knows nothing yet. Remember that."
+> "Left is the hub — it publishes offers. Right is the listener — it only
+> discovers. Both books are empty, both nodes are online. At the top you can
+> see the full journey: advertising and discovery are live today; the leap
+> and the swap itself are the marked next milestones."
 
-### SHOT 2 — Hub publishes an ad at rate 100 (30–60s)
+### SHOT 2 — Hub publishes at rate 100 (45s)
 
-SHOW:
-
-```bash
-curl -s -m 150 -X POST http://127.0.0.1:8327 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"publish_swap_advertisement","params":[{"base_udt_script":null,"quote_udt_script":null,"rate":"0x2540be400","fee_rate":"0xbb8","expiry_delta_millis":"0x5265c00"}]}'
-# expect {...,"rate":"0x2540be400",...,"operator_pubkey":"0230c7...","is_expired":false}
-```
-
-SAY:
-
-> "Now the hub publishes an offer: I'll swap this pair at rate 100, small
-> fee, valid for one day. It's signed with the hub's own key, so nobody can
-> fake it — and the signature is checked by every node that receives it."
-
-SHOW (confirm on hub):
-
-```bash
-curl -s -m 15 -X POST http://127.0.0.1:8327 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"list_swap_advertisements","params":[{"base_udt_script":null,"quote_udt_script":null}]}' | python3 -c "import json,sys; d=json.load(sys.stdin); print('hub offers:', len(d['result']['offers']))"
-# expect: hub offers: 1
-```
+SHOW: Click into Rate, type `100` (fee stays 3000, days stays 1). Click
+**Publish offer**. Keep the cursor still while it says *"signing &
+broadcasting…"*. When the hub table gains its row, point at the rate, the
+operator key, and the log strip entry.
 
 SAY:
 
-> "The hub's own book now shows one offer. And note — nothing was sent to
-> the listener directly. Keep that in mind."
+> "The hub posts an offer: swap this pair at rate 100, small fee, valid one
+> day. It's signed with the hub's own key, so no one can forge it — and it
+> expires on its own, so stale offers rot away. There it is in the hub's
+> book. Note what I did *not* do: I sent nothing to the listener."
 
-Fallback (only if publish stalls ~45s with no response): Ctrl-C, then run
-the hub `list` above — the write lands server-side even when the response
-is slow on a loaded machine, and the list proves it.
+Fallback (only if the button spins past ~45s): say *"The network round-trip
+is slow on this loaded machine — but watch the table, not the button,"*
+and let the auto-refresh reveal the row. Do not click twice (each click is
+one offer).
 
-### SHOT 3 — Connect hub → listener (15s)
+### SHOT 3 — Connect the nodes (20s)
 
-SHOW:
-
-```bash
-curl -s -m 15 -X POST http://127.0.0.1:8327 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"connect_peer","params":[{"address":"/ip4/127.0.0.1/tcp/8829/p2p/QmdccqCxFC8jSf6vj9cob7gRxHWEuMaji9HaHaKV6nATYJ"}]}'
-# expect {"result":null}
-sleep 8
-curl -s -m 15 -X POST http://127.0.0.1:8327 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"list_peers","params":[]}' | head -c 300; echo
-# expect peers[] to contain 8829/QmdccqCx...
-```
+SHOW: The peer address field is already filled. Click **Connect hub →
+listener**. Point at the log line *"Peering requested"*.
 
 SAY:
 
-> "Now I connect them directly — just an IP address. No bootnodes, no
-> central server, no discovery service. They're simply peers now."
+> "One click peers them — a bare IP address, no central server, no registry.
+> From here on, everything the listener learns arrives over gossip."
 
-### SHOT 4 — The money shot: listener discovers the ad (30s)
+### SHOT 4 — The money shot: the listener discovers it (40s)
 
-SHOW:
+SHOW: Say nothing for a few seconds; let an auto-refresh tick visibly. When
+the listener table gains the `100` row, point at it, then at the best-rate
+banner, then at journey stage 2 flipping to ✓.
 
-```bash
-sleep 20
-curl -s -m 15 -X POST http://127.0.0.1:8328 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"list_swap_advertisements","params":[{"base_udt_script":null,"quote_udt_script":null}]}' | python3 -c "import json,sys; d=json.load(sys.stdin); print('listener offers:', len(d['result']['offers'])); [print(' rate:', o['rate']) for o in d['result']['offers']]"
-# expect: listener offers: 1 / rate: 0x2540be400
-```
+SAY (after a two-beat pause, letting the viewer read it first):
 
-SAY (pause two beats on the output before speaking, let the viewer read
-the `1 offer` themselves):
+> "And there it is. Nobody told the listener anything — it found the hub's
+> offer through gossip sync, the same channel Fiber uses for routing. Best
+> rate already shows 100. *That discovery, without asking, is the entire
+> project.*"
 
-> "And here it is. Without anyone telling it, the listener now shows the
-> hub's offer — same rate, same operator key. It learned it through gossip
-> sync, the same channel Fiber already uses for routing info. That
-> discovery, without asking, is the entire project."
+If it takes longer than ~30s: say *"Gossip syncs in rounds — one more
+refresh cycle,"* wait for the next 5s tick on camera (patience reads as
+confidence), or cut the wait in editing.
 
-### SHOT 5 — Second ad at rate 200, best-rate wins (60s)
+### SHOT 5 — A better offer wins (45s)
 
-SHOW:
-
-```bash
-curl -s -m 150 -X POST http://127.0.0.1:8327 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"publish_swap_advertisement","params":[{"base_udt_script":null,"quote_udt_script":null,"rate":"0x4a38b2e00","fee_rate":"0xbb8","expiry_delta_millis":"0x5265c00"}]}' | head -c 200; echo
-sleep 20
-curl -s -m 15 -X POST http://127.0.0.1:8328 -H "Content-Type: application/json" -d '{"id":1,"jsonrpc":"2.0","method":"get_best_swap_rate","params":[{"base_udt_script":null,"quote_udt_script":null}]}' | python3 -c "import json,sys; print('best:', json.load(sys.stdin)['result']['offer']['rate'])"
-# expect: best: 0x4a38b2e00
-```
+SHOW: Back on the left card, change Rate to `200`, click **Publish offer**.
+Wait for the hub table to show two rows. Then watch the right card: best
+banner flips to 200.
 
 SAY:
 
-> "Now the hub posts a better offer — rate 200. Give it one sync round…
-> and best-rate returns 200 on the listener. A wallet never needs to
-> negotiate or message the hub. It just reads the board and picks the
-> biggest number. That's a market."
+> "Now the hub posts a better offer — 200. Watch the right side: two offers
+> now, and best-rate jumps to 200 by itself. A wallet never negotiates, never
+> messages the hub. It reads the board and takes the biggest number. That is
+> a market."
 
-### SHOT 6 — Same via CLI, both nodes agree (20s)
+### SHOT 6 — Both books agree (15s)
 
-SHOW:
-
-```bash
-./work/fiber/target/debug/fnn-cli --url http://127.0.0.1:8327 swap_ad list_swap_advertisements | grep -c "rate:"
-# expect 2
-./work/fiber/target/debug/fnn-cli --url http://127.0.0.1:8328 swap_ad list_swap_advertisements | grep -c "rate:"
-# expect 2
-./work/fiber/target/debug/fnn-cli --url http://127.0.0.1:8328 swap_ad get_best_swap_rate | grep "rate:"
-# expect rate: '0x4a38b2e00'
-```
+SHOW: Scroll slowly so both tables are visible side by side (zoom out one
+notch if needed). Point left, then right: same two rows, same best.
 
 SAY:
 
-> "Same data through the command line instead of raw API calls. Hub shows
-> two offers, listener shows the same two, and both agree the best is 200.
-> Two independent databases, converged — that's gossip doing its job."
+> "Left and right, identical books on two independent databases. That
+> convergence is gossip doing its job — and everything you just saw is also
+> available as API and CLI for the engineers."
 
-### SHOT 7 — Outro, stop nodes (5s)
+### SHOT 7 — Outro (10s)
 
-SHOW:
-
-```bash
-pkill -f "target/debug/fnn -c"; sleep 2; echo stopped
-```
+SHOW: Scroll back up to the journey strip. Point at stages 3–4.
 
 SAY:
 
-> "So that's it: publish, discover, best-rate — a signed, expiring market
-> riding on Fiber gossip, built for RGB++ swaps. Code is on my fiber fork,
-> branch feat/swap-advertisement, docs and test logs in fiber-rgbpp-swap.
-> Next step is wiring the actual swap behind the ads. Thanks for watching."
+> "Stages one and two, live, just demonstrated. The leap and the atomic swap
+> ride on proven code and are the marked next milestones. Code and docs are
+> linked below. Thanks for watching."
+
+Stop recording. Then off camera: `pkill -f "target/debug/fnn -c"`.
 
 ## If something deviates on camera
 
-- `Connection refused` on `:8327`/`:8328` → RPC not up yet; wait 60s, re-run.
-- `publish` stalls → Ctrl-C after ~45s, run `list` (ad will be there).
-- `peers[]` empty → wait 10s, retry `connect_peer` once.
-- Listener still 0 offers after 25s → wait one more 20s round (second batch).
-- `list` empty after a restart days later → old ads expired (1-day `expiry`);
-  publish fresh ones.
+- Dots red / books stuck on "loading…" → a node isn't up; wait 60s, reload.
+- Publish spins long → don't re-click; the row appears via auto-refresh.
+- Listener empty past ~30s → click **Connect** once more, wait one more cycle.
+- Books show old offers after a restart days later → they expired (1-day
+  validity); publish fresh ones — that rot is a feature, say so.
+- Keep a terminal with `tail -f /tmp/fnn-*.log` off-screen, not on camera.
