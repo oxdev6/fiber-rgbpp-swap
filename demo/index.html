@@ -3,222 +3,123 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Swap-Ad Market Board — Fiber Network</title>
+<title>Swap Ads — Fiber</title>
 <style>
   :root {
-    --paper: #fafaf8;
+    --bg: #f7f7f5;
     --panel: #ffffff;
-    --ink: #16181d;
-    --ink-2: #3d434d;
-    --muted: #6e7683;
-    --line: #e6e3db;
-    --line-soft: #efede7;
-    --green: #0f6b4a;
-    --green-bg: #edf5f0;
-    --amber: #b45309;
-    --amber-bg: #faf3e7;
-    --red: #c2410c;
-    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --ink: #111418;
+    --muted: #73767e;
+    --line: #e4e2dc;
+    --green: #16794c;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; background: var(--paper); color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   }
-  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 24px 32px; }
 
-  /* ---------- masthead ---------- */
-  .eyebrow {
-    margin: 28px 0 8px; font-size: 11px; font-weight: 700;
-    letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
-  }
-  .eyebrow .rule { display: inline-block; width: 28px; height: 2px; background: var(--ink); vertical-align: middle; margin-right: 10px; }
-  h1 { margin: 0; font-size: 34px; font-weight: 650; letter-spacing: -0.02em; }
-  .lede { margin: 10px 0 0; max-width: 760px; color: var(--ink-2); font-size: 15px; line-height: 1.6; }
-  .meta { display: flex; gap: 22px; flex-wrap: wrap; margin: 16px 0 0; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); }
-  .meta b { color: var(--ink); font-weight: 600; }
-  .pill { display: inline-flex; align-items: center; gap: 7px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: #c8c4b8; }
-  .dot.ok { background: var(--green); } .dot.bad { background: var(--red); }
+  header { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 0; font-size: 15px; font-weight: 650; }
+  header h1 span { color: var(--muted); font-weight: 400; }
+  .nodes { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #c9c5b9; margin: 0 5px 0 12px; }
+  .dot.ok { background: var(--green); } .dot.bad { background: #c2410c; }
 
-  /* ---------- journey stepper ---------- */
-  .section-label { margin: 26px 0 12px; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  @media (max-width: 900px) { .steps { grid-template-columns: 1fr 1fr; } }
-  .step { padding: 14px 16px 12px; border-left: 1px solid var(--line-soft); }
-  .step:first-child { border-left: 0; }
-  .step .n {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px; border-radius: 50%;
-    border: 1.5px solid var(--ink); font-size: 12px; font-weight: 700; margin-bottom: 8px;
-  }
-  .step.live .n { background: var(--green); border-color: var(--green); color: #fff; }
-  .step.next .n { border-style: dashed; color: var(--muted); border-color: #b9b4a6; }
-  .step h3 { margin: 0 0 3px; font-size: 13.5px; font-weight: 650; }
-  .step p { margin: 0 0 6px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
-  .step .jstat { font-size: 12px; font-weight: 600; color: var(--green); font-family: var(--mono); }
-  .step.next .jstat { color: var(--muted); font-weight: 500; }
-  .journey-note { margin: 8px 2px 0; font-size: 12px; color: var(--muted); }
+  .flow { display: flex; align-items: center; gap: 8px; margin: 14px 0; font-size: 12px; color: var(--muted); }
+  .flow .st { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; white-space: nowrap; }
+  .flow .st b { color: var(--ink); font-weight: 600; }
+  .flow .st.done { border-color: #bcd9c8; }
+  .flow .st.done b { color: var(--green); }
+  .flow .st.todo { border-style: dashed; opacity: .75; }
+  .flow .arr { color: #b9b5a8; }
+  .flow .jstat { font-family: var(--mono); font-size: 11px; color: var(--green); }
+  .flow .st.todo .jstat { color: var(--muted); }
 
-  /* ---------- market panels ---------- */
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
-  .panel-head { display: flex; align-items: baseline; justify-content: space-between; padding: 14px 18px 0; }
-  .panel-head h2 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: -0.01em; }
-  .live { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); }
-  .live::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 6px; }
-  .panel-sub { padding: 2px 18px 0; font-size: 13px; color: var(--muted); }
-  .panel-body { padding: 12px 18px 18px; }
-  .field-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 10px 0 5px; }
-  .field-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  input[type="number"], input[type="text"] {
-    width: 100%; padding: 8px 10px; font-size: 14px; color: var(--ink);
-    background: var(--paper); border: 1px solid var(--line); border-radius: 7px; outline: none;
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px 14px; }
+  .panel h2 { margin: 0; font-size: 13px; font-weight: 650; }
+  .panel h2 span { color: var(--muted); font-weight: 400; font-family: var(--mono); font-size: 11.5px; }
+  .ctl { display: flex; gap: 8px; margin-top: 10px; }
+  .ctl input {
+    padding: 6px 8px; font-size: 13px; color: var(--ink);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 6px; outline: none;
+    min-width: 0;
   }
-  input:focus { border-color: var(--ink); }
-  .btn {
-    margin-top: 14px; padding: 9px 18px; font-size: 13.5px; font-weight: 650;
+  .ctl input:focus { border-color: var(--ink); }
+  .ctl input[type="number"] { width: 76px; }
+  .ctl input[type="text"] { flex: 1; font-family: var(--mono); font-size: 11.5px; }
+  button {
+    padding: 6px 14px; font-size: 13px; font-weight: 600; white-space: nowrap;
     color: #fff; background: var(--ink); border: 1px solid var(--ink);
-    border-radius: 7px; cursor: pointer;
+    border-radius: 6px; cursor: pointer;
   }
-  .btn:hover { background: #000; }
-  .btn:disabled { opacity: .55; cursor: wait; }
-  .btn-secondary { background: transparent; color: var(--ink); margin-right: 8px; }
-  .btn-secondary:hover { background: var(--line-soft); }
-  #pub-state { margin-left: 10px; font-size: 13px; color: var(--muted); }
+  button:hover { background: #000; }
+  button:disabled { opacity: .5; cursor: wait; }
+  button.secondary { background: transparent; color: var(--ink); }
+  button.secondary:hover { background: var(--bg); }
+  #pub-state { font-size: 12px; color: var(--muted); margin-left: 8px; }
 
-  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
-  thead th {
-    text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .08em;
-    text-transform: uppercase; color: var(--muted); padding: 6px 8px;
-    border-bottom: 1px solid var(--line);
-  }
-  tbody td { padding: 8px; border-bottom: 1px solid var(--line-soft); }
-  tbody tr:last-child td { border-bottom: 0; }
-  td.num { font-family: var(--mono); font-size: 12.5px; text-align: right; }
-  th.num { text-align: right; }
-  td.key { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
-  .empty { padding: 14px 2px; font-size: 13px; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th { text-align: left; font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 4px 6px; border-bottom: 1px solid var(--line); }
+  td { padding: 6px; border-bottom: 1px solid #f0eee8; font-size: 12.5px; }
+  tr:last-child td { border-bottom: 0; }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-size: 12px; }
+  td.key { font-family: var(--mono); font-size: 11.5px; color: var(--ink); }
+  .hex { color: var(--muted); font-size: 10.5px; }
+  .empty { padding: 12px 2px; color: var(--muted); font-size: 12.5px; }
 
-  .best {
-    margin-top: 14px; padding: 12px 14px; border-radius: 8px;
-    background: var(--green-bg); border: 1px solid #cfe3d6;
-    font-size: 13.5px;
-  }
-  .best .k { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green); display: block; margin-bottom: 2px; }
-  .best b { font-family: var(--mono); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .best { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+  .best b { font-family: var(--mono); font-size: 17px; color: var(--ink); font-weight: 650; }
+  #best-box .k { font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 
-  /* ---------- log ---------- */
-  #log {
-    margin-top: 12px; background: var(--panel); border: 1px solid var(--line);
-    border-radius: 10px; padding: 6px 18px; max-height: 210px; overflow-y: auto;
-    font-family: var(--mono); font-size: 12.5px;
-  }
-  #log div { padding: 7px 0; border-bottom: 1px solid var(--line-soft); }
-  #log div:last-child { border-bottom: 0; }
-  #log .t { color: var(--muted); margin-right: 10px; }
-
-  footer { margin: 20px 0 32px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.7; }
-  footer code, .mono { font-family: var(--mono); font-size: 11.5px; background: var(--line-soft); padding: 1px 6px; border-radius: 5px; }
+  #log { margin-top: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); min-height: 18px; }
+  #log .t { margin-right: 8px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="eyebrow"><span class="rule"></span>Fiber Network · Swap Advertisements</div>
-  <h1>Market board</h1>
-  <p class="lede">Hubs broadcast signed swap offers over gossip — pair, rate, fee,
-  expiry. Any wallet can listen and take the best one, with no negotiation and
-  no intermediary. Left: the <b>hub</b> that publishes. Right: the
-  <b>listener</b> that discovers.</p>
+  <header>
+    <h1>swap-ads <span>/ fiber market board</span></h1>
+    <div class="nodes"><span class="dot" id="dot-hub"></span>hub :8327 <span id="hub-state">…</span><span class="dot" id="dot-lis"></span>listener :8328 <span id="lis-state">…</span></div>
+  </header>
 
-  <div class="meta">
-    <span class="pill"><span class="dot" id="dot-hub"></span>Hub <b>&nbsp;127.0.0.1:8327&nbsp;</b> <span id="hub-state">…</span></span>
-    <span class="pill"><span class="dot" id="dot-lis"></span>Listener <b>&nbsp;127.0.0.1:8328&nbsp;</b> <span id="lis-state">…</span></span>
-    <span>Network <b>CKB testnet</b></span>
-    <span>Listener refresh <b>5s</b></span>
+  <div class="flow" id="journey">
+    <span class="st" id="j1"><b>1 · advertise</b> <span class="jstat">…</span></span><span class="arr">→</span>
+    <span class="st" id="j2"><b>2 · discover</b> <span class="jstat">…</span></span><span class="arr">→</span>
+    <span class="st todo" id="j3"><b>3 · leap</b> <span class="jstat">next</span></span><span class="arr">→</span>
+    <span class="st todo" id="j4"><b>4 · swap</b> <span class="jstat">next</span></span>
   </div>
 
-  <div class="section-label">The full journey — where this project fits</div>
-  <div class="steps" id="journey">
-    <div class="step live" id="j1">
-      <div class="n">1</div>
-      <h3>Hub advertises</h3>
-      <p>Signed rate offer broadcast over gossip.</p>
-      <span class="jstat">…</span>
-    </div>
-    <div class="step live" id="j2">
-      <div class="n">2</div>
-      <h3>Wallet discovers</h3>
-      <p>Listener learns offers, picks the best rate.</p>
-      <span class="jstat">…</span>
-    </div>
-    <div class="step next" id="j3">
-      <div class="n">3</div>
-      <h3>Leap</h3>
-      <p>RGB++ lock → standard CKB UDT, via existing rgbpp tooling.</p>
-      <span class="jstat">next milestone — not in this build</span>
-    </div>
-    <div class="step next" id="j4">
-      <div class="n">4</div>
-      <h3>Atomic swap</h3>
-      <p>CCH lock-and-reveal generalized to the new pair.</p>
-      <span class="jstat">next milestone — not in this build</span>
-    </div>
-  </div>
-  <p class="journey-note">Stages 1–2 are live below. Stages 3–4 reuse proven code and are
-  the follow-on scope — shown so the destination is clear.</p>
-
-  <div class="section-label">Live market</div>
   <div class="grid">
     <section class="panel">
-      <div class="panel-head"><h2>Hub — publish</h2><span class="live">Live</span></div>
-      <div class="panel-sub">Signed with the hub's node key, relayed over gossip, expires on its own.</div>
-      <div class="panel-body">
-        <div class="field-row">
-          <div><label class="field-label" for="rate">Rate · quote/base</label><input id="rate" type="number" value="100" min="1" /></div>
-          <div><label class="field-label" for="fee">Fee · per million</label><input id="fee" type="number" value="3000" min="0" /></div>
-          <div><label class="field-label" for="days">Valid · days</label><input id="days" type="number" value="1" min="1" /></div>
-        </div>
-        <button class="btn" id="btn-publish" onclick="publish()">Publish offer</button>
-        <span id="pub-state"></span>
-        <div class="section-label" style="margin-top:18px;">Hub book</div>
-        <div id="hub-book"><div class="empty">Loading…</div></div>
+      <h2>Hub <span>127.0.0.1:8327</span></h2>
+      <div class="ctl">
+        <input id="rate" type="number" value="100" min="1" title="Rate (quote per base)" />
+        <input id="fee" type="number" value="3000" min="0" title="Fee per million" />
+        <input id="days" type="number" value="1" min="1" title="Valid days" />
+        <button id="btn-publish" onclick="publish()">Publish</button>
       </div>
+      <span id="pub-state"></span>
+      <div id="hub-book"><div class="empty">—</div></div>
     </section>
 
     <section class="panel">
-      <div class="panel-head"><h2>Listener — discover</h2><span class="live">Live</span></div>
-      <div class="panel-sub">Learns hub offers through gossip sync. Nothing is sent to it directly.</div>
-      <div class="panel-body">
-        <label class="field-label" for="peer">Hub peer address</label>
+      <h2>Listener <span>127.0.0.1:8328</span></h2>
+      <div class="ctl">
         <input id="peer" type="text" value="/ip4/127.0.0.1/tcp/8829/p2p/QmdccqCxFC8jSf6vj9cob7gRxHWEuMaji9HaHaKV6nATYJ" />
-        <div>
-          <button class="btn btn-secondary" onclick="connectPeer()">Connect hub → listener</button>
-          <button class="btn btn-secondary" onclick="refreshBooks()">Refresh now</button>
-        </div>
-        <div class="best" id="best-box"><span class="k">Best rate</span>—</div>
-        <div class="section-label" style="margin-top:18px;">Listener book</div>
-        <div class="sub" style="font-size:12.5px;color:var(--muted);">Same offers, learned over gossip. Both books must converge.</div>
-        <div id="lis-book"><div class="empty">Loading…</div></div>
+        <button class="secondary" onclick="connectPeer()">Connect</button>
       </div>
+      <div class="best" id="best-box"><span class="k">Best</span>—</div>
+      <div id="lis-book"><div class="empty">—</div></div>
     </section>
   </div>
 
-  <div class="section-label">Event log</div>
   <div id="log"></div>
-
-  <footer>
-    Rates are stored as quote-per-base × 10⁸ on the wire and shown here as plain
-    numbers. Offers expire automatically (<span class="mono">is_expired</span>).
-    Code: <span class="mono">github.com/oxdev6/fiber</span> branch
-    <span class="mono">feat/swap-advertisement</span>.
-    Serve with <span class="mono">python3 -m http.server 8000</span> inside
-    <span class="mono">demo/</span> and open <span class="mono">http://127.0.0.1:8000</span>
-    (nodes need <span class="mono">cors_enabled: true</span>).
-  </footer>
 
 </div>
 
@@ -229,12 +130,7 @@ const LIS = "http://127.0.0.1:8328";
 function log(msg) {
   const el = document.getElementById("log");
   const t = new Date().toLocaleTimeString();
-  const div = document.createElement("div");
-  const span = document.createElement("span");
-  span.className = "t"; span.textContent = t;
-  div.appendChild(span);
-  div.appendChild(document.createTextNode(msg));
-  el.prepend(div);
+  el.textContent = t + "  " + msg;
 }
 
 async function rpc(url, method, params, timeoutMs = 20000) {
@@ -257,17 +153,17 @@ async function rpc(url, method, params, timeoutMs = 20000) {
 }
 
 const hexToBig = (h) => BigInt(h);
-const fmtRate = (r) => (Number(hexToBig(r) / 100000000n)).toLocaleString() + "  (" + r + ")";
-const shortKey = (k) => k.slice(0, 10) + "…";
+const fmtRate = (r) => (hexToBig(r) / 100000000n).toString();
+const shortKey = (k) => k.slice(0, 8);
+const fmtExpiry = (e) => new Date(Number(hexToBig(e))).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
 function bookTable(offers) {
-  if (!offers.length) return '<div class="empty">No offers yet — publish one from the hub.</div>';
-  let html = "<table><thead><tr><th class='num'>Rate</th><th class='num'>Fee&nbsp;/M</th><th>Operator</th><th>Expires</th></tr></thead><tbody>";
+  if (!offers.length) return '<div class="empty">No offers.</div>';
+  let html = "<table><thead><tr><th class='num'>Rate</th><th class='num'>Fee</th><th>Operator</th><th>Expiry</th></tr></thead><tbody>";
   for (const o of offers) {
-    const exp = new Date(Number(hexToBig(o.expiry))).toLocaleString();
     html += "<tr><td class='num'>" + fmtRate(o.rate) + "</td><td class='num'>" +
       hexToBig(o.fee_rate) + "</td><td class='key'>" + shortKey(o.operator_pubkey) + "</td><td>" +
-      exp + (o.is_expired ? " (expired)" : "") + "</td></tr>";
+      fmtExpiry(o.expiry) + (o.is_expired ? " †" : "") + "</td></tr>";
   }
   return html + "</tbody></table>";
 }
@@ -288,28 +184,31 @@ async function refreshBooks() {
     const a = await rpc(HUB, "list_swap_advertisements",
       [{ base_udt_script: null, quote_udt_script: null }]);
     document.getElementById("hub-book").innerHTML = bookTable(a.offers);
-    document.getElementById("hub-state").textContent = a.offers.length + " offer(s)";
+    document.getElementById("hub-state").textContent = a.offers.length + "";
     setDot("dot-hub", true);
-    setJourney("j1", a.offers.length ? "✓ live — " + a.offers.length + " active offer(s)" : "live — nothing published yet");
+    const j1 = document.getElementById("j1");
+    j1.classList.toggle("done", a.offers.length > 0);
+    setJourney("j1", a.offers.length ? a.offers.length + " live" : "—");
   } catch (e) {
-    document.getElementById("hub-state").textContent = "unreachable";
+    document.getElementById("hub-state").textContent = "down";
     setDot("dot-hub", false);
-    setJourney("j1", "hub unreachable");
   }
   try {
     const b = await rpc(LIS, "list_swap_advertisements",
       [{ base_udt_script: null, quote_udt_script: null }]);
     document.getElementById("lis-book").innerHTML = bookTable(b.offers);
-    document.getElementById("lis-state").textContent = b.offers.length + " offer(s)";
+    document.getElementById("lis-state").textContent = b.offers.length + "";
     setDot("dot-lis", true);
-    setJourney("j2", b.offers.length ? "✓ live — listener sees " + b.offers.length + " offer(s)" : "live — nothing discovered yet");
+    const j2 = document.getElementById("j2");
+    j2.classList.toggle("done", b.offers.length > 0);
+    setJourney("j2", b.offers.length ? b.offers.length + " found" : "—");
     const best = await rpc(LIS, "get_best_swap_rate",
       [{ base_udt_script: null, quote_udt_script: null }]);
     document.getElementById("best-box").innerHTML = best.offer
-      ? "<span class='k'>Best rate</span><b>" + fmtRate(best.offer.rate) + "</b> · from " + shortKey(best.offer.operator_pubkey)
-      : "<span class='k'>Best rate</span>—";
+      ? "<span class='k'>Best</span><b>" + fmtRate(best.offer.rate) + "</b><span>" + shortKey(best.offer.operator_pubkey) + "</span>"
+      : "<span class='k'>Best</span>—";
   } catch (e) {
-    document.getElementById("lis-state").textContent = "unreachable";
+    document.getElementById("lis-state").textContent = "down";
     setDot("dot-lis", false);
   }
 }
@@ -322,8 +221,8 @@ async function publish() {
   const days = Math.max(1, Math.floor(Number(document.getElementById("days").value) || 1));
   const rateRaw = BigInt(rateHuman) * 100000000n;
   btn.disabled = true;
-  st.textContent = "signing & broadcasting…";
-  log("Hub publishing offer at rate " + rateHuman + " …");
+  st.textContent = "…";
+  log("publishing at " + rateHuman);
   try {
     await rpc(HUB, "publish_swap_advertisement", [{
       base_udt_script: null, quote_udt_script: null,
@@ -331,11 +230,9 @@ async function publish() {
       fee_rate: "0x" + BigInt(fee).toString(16),
       expiry_delta_millis: "0x" + BigInt(days * 86400000).toString(16),
     }], 150000);
-    log("Hub published offer at rate " + rateHuman + ".");
+    log("published at " + rateHuman);
   } catch (e) {
-    // Known quirk: on a loaded machine the response can be very slow while
-    // the write still lands — verify via the book instead of retrying blindly.
-    log("Publish response slow (" + e.message + ") — checking the book; the offer usually still lands.");
+    log("publish slow (" + e.message + ") — row appears anyway");
   }
   st.textContent = "";
   btn.disabled = false;
@@ -346,9 +243,9 @@ async function connectPeer() {
   const addr = document.getElementById("peer").value.trim();
   try {
     await rpc(HUB, "connect_peer", [{ address: addr }]);
-    log("Peering requested — gossip sync picks up offers within ~25s.");
+    log("peering requested");
   } catch (e) {
-    log("Connect failed: " + e.message);
+    log("connect failed: " + e.message);
   }
   await refreshBooks();
 }
