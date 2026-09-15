@@ -6,98 +6,156 @@
 <title>Swap Ads — Fiber</title>
 <style>
   :root {
-    --bg: #f7f7f5;
-    --panel: #ffffff;
-    --ink: #111418;
-    --muted: #73767e;
-    --line: #e4e2dc;
-    --green: #16794c;
+    --bg: #04060a;
+    --panel: #0b0e13;
+    --ink: #f2f5f7;
+    --muted: #8b94a1;
+    --faint: #4a515c;
+    --line: rgba(255,255,255,.09);
+    --acc: #6cb8ff;
+    --green: #34d399;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
     font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    min-height: 100vh;
   }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 24px 32px; }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 68% 8%, rgba(255,255,255,.4), transparent),
+      radial-gradient(1px 1px at 84% 34%, rgba(255,255,255,.35), transparent),
+      radial-gradient(1px 1px at 32% 12%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 52% 28%, rgba(255,255,255,.28), transparent),
+      radial-gradient(1px 1px at 6% 62%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 92% 68%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 44% 82%, rgba(255,255,255,.25), transparent),
+      radial-gradient(1px 1px at 74% 88%, rgba(255,255,255,.25), transparent),
+      radial-gradient(600px 300px at 50% -80px, rgba(108,184,255,.07), transparent);
+  }
+  .wrap { position: relative; max-width: 1060px; margin: 0 auto; padding: 26px 28px 40px; }
 
-  header { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-  header h1 { margin: 0; font-size: 15px; font-weight: 650; }
-  header h1 span { color: var(--muted); font-weight: 400; }
-  .nodes { font-size: 12px; color: var(--muted); font-family: var(--mono); }
-  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #c9c5b9; margin: 0 5px 0 12px; }
-  .dot.ok { background: var(--green); } .dot.bad { background: #c2410c; }
+  /* top bar */
+  .top { display: flex; align-items: center; justify-content: space-between; }
+  .brand { font-size: 14px; font-weight: 700; letter-spacing: .18em; }
+  .brand span { color: var(--muted); font-weight: 400; letter-spacing: .08em; }
+  .online {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: .14em;
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
+    background: rgba(255,255,255,.02);
+  }
+  .online .dot { width: 7px; height: 7px; border-radius: 50%; background: #3a3f47; }
+  .online .dot.ok { background: var(--green); box-shadow: 0 0 8px rgba(52,211,153,.9); animation: pulse 2.4s infinite; }
+  .online .dot.bad { background: #f87171; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+  .online .sep { color: var(--faint); font-weight: 400; letter-spacing: .04em; }
 
-  .flow { display: flex; align-items: center; gap: 8px; margin: 14px 0; font-size: 12px; color: var(--muted); }
-  .flow .st { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; white-space: nowrap; }
+  /* hero stats */
+  .hero { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 12px; margin: 30px 0 8px; }
+  @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px 16px; }
+  .stat .k { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; color: var(--muted); }
+  .stat .v { font-size: 52px; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .stat .v small { font-size: 15px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .stat.hero-best .v { color: #fff; text-shadow: 0 0 34px rgba(108,184,255,.35); }
+  .stat .sub { font-size: 11.5px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+  #best-box .k { display: none; }
+
+  /* nodes row */
+  .nodes { display: flex; gap: 16px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 10px 2px 0; }
+  .nodes .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3a3f47; margin-right: 6px; }
+  .nodes .dot.ok { background: var(--green); box-shadow: 0 0 8px rgba(52,211,153,.9); }
+  .nodes .dot.bad { background: #f87171; }
+
+  /* journey */
+  .flow { display: flex; align-items: center; gap: 0; margin: 22px 0 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .flow .st { flex: 1; padding: 11px 14px; font-size: 12px; color: var(--muted); border-left: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .flow .st:first-child { border-left: 0; }
   .flow .st b { color: var(--ink); font-weight: 600; }
-  .flow .st.done { border-color: #bcd9c8; }
-  .flow .st.done b { color: var(--green); }
-  .flow .st.todo { border-style: dashed; opacity: .75; }
-  .flow .arr { color: #b9b5a8; }
-  .flow .jstat { font-family: var(--mono); font-size: 11px; color: var(--green); }
-  .flow .st.todo .jstat { color: var(--muted); }
+  .flow .st .jstat { font-family: var(--mono); font-size: 11px; color: var(--acc); display: block; margin-top: 1px; }
+  .flow .st.todo { opacity: .55; }
+  .flow .st.todo .jstat { color: var(--faint); }
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* panels */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
   @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px 14px; }
-  .panel h2 { margin: 0; font-size: 13px; font-weight: 650; }
-  .panel h2 span { color: var(--muted); font-weight: 400; font-family: var(--mono); font-size: 11.5px; }
-  .ctl { display: flex; gap: 8px; margin-top: 10px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px 18px; }
+  .panel h2 { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--muted); }
+  .panel h2 span { font-family: var(--mono); letter-spacing: 0; font-weight: 400; }
+  .ctl { display: flex; gap: 8px; margin-top: 12px; }
   .ctl input {
-    padding: 6px 8px; font-size: 13px; color: var(--ink);
-    background: var(--bg); border: 1px solid var(--line); border-radius: 6px; outline: none;
-    min-width: 0;
+    padding: 9px 10px; font-size: 13px; color: var(--ink);
+    background: rgba(255,255,255,.03); border: 1px solid var(--line);
+    border-radius: 9px; outline: none; min-width: 0;
   }
-  .ctl input:focus { border-color: var(--ink); }
-  .ctl input[type="number"] { width: 76px; }
-  .ctl input[type="text"] { flex: 1; font-family: var(--mono); font-size: 11.5px; }
+  .ctl input:focus { border-color: var(--acc); }
+  .ctl input[type="number"] { width: 74px; font-family: var(--mono); }
+  .ctl input[type="text"] { flex: 1; font-family: var(--mono); font-size: 11px; }
   button {
-    padding: 6px 14px; font-size: 13px; font-weight: 600; white-space: nowrap;
-    color: #fff; background: var(--ink); border: 1px solid var(--ink);
-    border-radius: 6px; cursor: pointer;
+    padding: 9px 18px; font-size: 13px; font-weight: 650; white-space: nowrap;
+    color: #04121f; background: var(--acc); border: 0;
+    border-radius: 9px; cursor: pointer;
   }
-  button:hover { background: #000; }
+  button:hover { filter: brightness(1.1); }
   button:disabled { opacity: .5; cursor: wait; }
-  button.secondary { background: transparent; color: var(--ink); }
-  button.secondary:hover { background: var(--bg); }
+  button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  button.secondary:hover { border-color: var(--muted); }
   #pub-state { font-size: 12px; color: var(--muted); margin-left: 8px; }
 
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-  th { text-align: left; font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 4px 6px; border-bottom: 1px solid var(--line); }
-  td { padding: 6px; border-bottom: 1px solid #f0eee8; font-size: 12.5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--faint); padding: 6px; border-bottom: 1px solid var(--line); }
+  td { padding: 9px 6px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; }
   tr:last-child td { border-bottom: 0; }
-  td.num, th.num { text-align: right; font-family: var(--mono); font-size: 12px; }
-  td.key { font-family: var(--mono); font-size: 11.5px; color: var(--ink); }
-  .hex { color: var(--muted); font-size: 10.5px; }
-  .empty { padding: 12px 2px; color: var(--muted); font-size: 12.5px; }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-size: 12.5px; }
+  td.key { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .empty { padding: 16px 2px; color: var(--faint); font-size: 13px; }
 
-  .best { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
-  .best b { font-family: var(--mono); font-size: 17px; color: var(--ink); font-weight: 650; }
-  #best-box .k { font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-
-  #log { margin-top: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); min-height: 18px; }
+  #log { margin-top: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--faint); min-height: 18px; }
   #log .t { margin-right: 8px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
-    <h1>swap-ads <span>/ fiber market board</span></h1>
-    <div class="nodes"><span class="dot" id="dot-hub"></span>hub :8327 <span id="hub-state">…</span><span class="dot" id="dot-lis"></span>listener :8328 <span id="lis-state">…</span></div>
-  </header>
+  <div class="top">
+    <div class="brand">SWAP·ADS <span>/ FIBER</span></div>
+    <div class="online"><span class="dot" id="dot-hub"></span><span id="hub-state">…</span><span class="sep">·</span><span class="dot" id="dot-lis"></span><span id="lis-state">…</span></div>
+  </div>
+
+  <div class="hero">
+    <div class="stat hero-best">
+      <div class="k">Best rate · quote / base</div>
+      <div class="v" id="best-box">—</div>
+      <div class="sub" id="best-sub">listening…</div>
+    </div>
+    <div class="stat">
+      <div class="k">Hub offers</div>
+      <div class="v" id="hub-count">—</div>
+      <div class="sub">127.0.0.1:8327</div>
+    </div>
+    <div class="stat">
+      <div class="k">Listener offers</div>
+      <div class="v" id="lis-count">—</div>
+      <div class="sub">127.0.0.1:8328 · gossip sync</div>
+    </div>
+  </div>
+
+  <div class="nodes" style="display:none"></div>
 
   <div class="flow" id="journey">
-    <span class="st" id="j1"><b>1 · advertise</b> <span class="jstat">…</span></span><span class="arr">→</span>
-    <span class="st" id="j2"><b>2 · discover</b> <span class="jstat">…</span></span><span class="arr">→</span>
-    <span class="st todo" id="j3"><b>3 · leap</b> <span class="jstat">next</span></span><span class="arr">→</span>
-    <span class="st todo" id="j4"><b>4 · swap</b> <span class="jstat">next</span></span>
+    <div class="st" id="j1"><b>01 Advertise</b><span class="jstat">…</span></div>
+    <div class="st" id="j2"><b>02 Discover</b><span class="jstat">…</span></div>
+    <div class="st todo" id="j3"><b>03 Leap</b><span class="jstat">next</span></div>
+    <div class="st todo" id="j4"><b>04 Swap</b><span class="jstat">next</span></div>
   </div>
 
   <div class="grid">
     <section class="panel">
-      <h2>Hub <span>127.0.0.1:8327</span></h2>
+      <h2>HUB <span>· publish</span></h2>
       <div class="ctl">
         <input id="rate" type="number" value="100" min="1" title="Rate (quote per base)" />
         <input id="fee" type="number" value="3000" min="0" title="Fee per million" />
@@ -109,12 +167,11 @@
     </section>
 
     <section class="panel">
-      <h2>Listener <span>127.0.0.1:8328</span></h2>
+      <h2>LISTENER <span>· discover</span></h2>
       <div class="ctl">
         <input id="peer" type="text" value="/ip4/127.0.0.1/tcp/8829/p2p/QmdccqCxFC8jSf6vj9cob7gRxHWEuMaji9HaHaKV6nATYJ" />
         <button class="secondary" onclick="connectPeer()">Connect</button>
       </div>
-      <div class="best" id="best-box"><span class="k">Best</span>—</div>
       <div id="lis-book"><div class="empty">—</div></div>
     </section>
   </div>
@@ -179,36 +236,43 @@ function setJourney(id, text) {
   if (el) el.textContent = text;
 }
 
+function setCount(id, n) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = n;
+}
+
 async function refreshBooks() {
   try {
     const a = await rpc(HUB, "list_swap_advertisements",
       [{ base_udt_script: null, quote_udt_script: null }]);
     document.getElementById("hub-book").innerHTML = bookTable(a.offers);
-    document.getElementById("hub-state").textContent = a.offers.length + "";
+    document.getElementById("hub-state").textContent = a.offers.length + " offers";
+    setCount("hub-count", a.offers.length);
     setDot("dot-hub", true);
-    const j1 = document.getElementById("j1");
-    j1.classList.toggle("done", a.offers.length > 0);
     setJourney("j1", a.offers.length ? a.offers.length + " live" : "—");
   } catch (e) {
-    document.getElementById("hub-state").textContent = "down";
+    document.getElementById("hub-state").textContent = "offline";
     setDot("dot-hub", false);
   }
   try {
     const b = await rpc(LIS, "list_swap_advertisements",
       [{ base_udt_script: null, quote_udt_script: null }]);
     document.getElementById("lis-book").innerHTML = bookTable(b.offers);
-    document.getElementById("lis-state").textContent = b.offers.length + "";
+    document.getElementById("lis-state").textContent = b.offers.length + " offers";
+    setCount("lis-count", b.offers.length);
     setDot("dot-lis", true);
-    const j2 = document.getElementById("j2");
-    j2.classList.toggle("done", b.offers.length > 0);
     setJourney("j2", b.offers.length ? b.offers.length + " found" : "—");
     const best = await rpc(LIS, "get_best_swap_rate",
       [{ base_udt_script: null, quote_udt_script: null }]);
-    document.getElementById("best-box").innerHTML = best.offer
-      ? "<span class='k'>Best</span><b>" + fmtRate(best.offer.rate) + "</b><span>" + shortKey(best.offer.operator_pubkey) + "</span>"
-      : "<span class='k'>Best</span>—";
+    if (best.offer) {
+      document.getElementById("best-box").innerHTML = fmtRate(best.offer.rate);
+      document.getElementById("best-sub").textContent = "from " + shortKey(best.offer.operator_pubkey) + " · live";
+    } else {
+      document.getElementById("best-box").innerHTML = "—";
+      document.getElementById("best-sub").textContent = "no offers yet";
+    }
   } catch (e) {
-    document.getElementById("lis-state").textContent = "down";
+    document.getElementById("lis-state").textContent = "offline";
     setDot("dot-lis", false);
   }
 }
