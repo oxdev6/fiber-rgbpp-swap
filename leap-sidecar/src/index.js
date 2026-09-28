@@ -54,6 +54,24 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, { ok: true, sidecar: "0.1.0", rgbpp: RGBPP_VERSION });
     }
 
+    if (req.method === "GET" && url.pathname === "/env") {
+      // L2a: prove SDK integration live — build network config + resolve
+      // script templates. No keys, no chain calls.
+      const { buildNetworkConfig, PredefinedNetwork } = await import(
+        "@ckb-ccc/rgbpp"
+      );
+      const chain =
+        process.env.UTXO_BASED_CHAIN_NAME || PredefinedNetwork.BitcoinTestnet3;
+      const cfg = buildNetworkConfig(chain);
+      return send(res, 200, {
+        chain: cfg.name,
+        isMainnet: cfg.isMainnet,
+        btcDustLimit: String(cfg.btcDustLimit),
+        btcFeeRate: String(cfg.btcFeeRate),
+        scripts: Object.keys(cfg.scripts || {}),
+      });
+    }
+
     if (req.method === "POST" && url.pathname === "/leap") {
       const p = await readBody(req);
       // Minimal validation; full script/UTXO validation happens in L2.
