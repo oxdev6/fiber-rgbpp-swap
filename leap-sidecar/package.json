@@ -1,0 +1,13 @@
+{
+  "name": "leap-sidecar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RGB++ leap sidecar for fiber-rgbpp-swap (wraps audited leap tooling behind a narrow localhost API)",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@ckb-ccc/rgbpp": "0.0.0-canary-20251023120010"
+  }
+}
