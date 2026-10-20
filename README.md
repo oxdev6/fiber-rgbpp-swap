@@ -4,6 +4,20 @@ A market and discovery layer for Fiber Network’s Cross-Chain Hub, enabling ope
 
 Fiber already carries RGB++ assets as a native channel asset type. This project adds the missing piece: a gossip-broadcast market where hubs advertise supported pairs and clients discover the best offer.
 
+## Status (2026-10-20)
+
+The market layer and an end-to-end swap of an RGB++-issued asset are both live on
+testnet3:
+
+- swap order `0x2823d3ec…` — **Success**, 1 unit of asset `0xeb4963db…` for 100 CKB,
+  over channel `0xbdfbc451…`
+- the lineage behind it (issuance → leap → unlock → transfer) is six committed
+  transactions across Bitcoin and CKB; every hash is in
+  [docs/submission.md](docs/submission.md)
+- re-check all of them with `bash scripts/verify-evidence.sh`
+- operate or reproduce the pipeline with `bash scripts/e2e-run.sh`
+  ([docs/l3-orchestration.md](docs/l3-orchestration.md))
+
 ## Overview
 
 - **SwapAdvertisement** — a signed, expirable gossip message carrying an asset pair (base UDT ↔ quote UDT), rate, fee, operator pubkey, timestamp and expiry.
