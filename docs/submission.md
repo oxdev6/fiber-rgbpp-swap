@@ -117,5 +117,3 @@ repeat them.
 | swap through a Fiber channel | done | order Success, section 3 |
 | verified on a public network | done | `scripts/verify-evidence.sh` |
 | built on Fiber, not beside it | done | runs in the CCH path, links in section 3 |
-
-609,757 CKB approved − 121,952 CKB paid = 487,805 CKB outstanding.
