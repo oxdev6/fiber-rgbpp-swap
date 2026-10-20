@@ -10,6 +10,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 STATE=${1:-localnet/e2e-state.json}
+[ -f "$STATE" ] || STATE=docs/evidence-state.json
 CKB_RPC=${CKB_RPC:-https://testnet.ckb.dev/}
 MEMPOOL=${MEMPOOL_API:-https://mempool.space/testnet}
 

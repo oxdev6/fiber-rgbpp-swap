@@ -1,38 +1,58 @@
 # Fiber RGB++ Swap — submission package
 
-Everything a reviewer needs, in one place. No code review required: every claim
-either has a public transaction hash or a command that re-checks it.
+Everything needed to judge the project, in one place. No code review: every
+claim is either a public transaction hash or a command that re-checks it.
 
-## 1. Against the termination notice
+## 1. The confusion in the review
 
-The notice (post #30) gave three substantive grounds. This is the state of each.
+The termination notice (post #30) evaluates the project against a baseline and
+an artifact that are both identifiable, and neither is the one that was
+contracted. Three specifics.
 
-| Finding in the notice | At close (2026-09-15) | Now |
+**a. It cites the wrong baseline.** The notice says "$1,000" and requires "at
+least the core Swap functionality". That baseline was superseded on
+2026-08-13: post #18 ruled the RGB++ integration out of scope and set the grant
+to $500 / 4 weeks; I accepted in post #19; the accepted plan is post #20; and
+609,757 CKB was approved on that basis in post #21, of which 121,952 CKB (20%)
+was paid in post #24. **The plan in post #20 contains no swap stage at all** —
+it is design/schema, gossip integration, discovery index + RPC/CLI, and
+testing/demo/docs. Judged against the baseline that was paid for, all four
+weeks were delivered as specified.
+
+**b. It cites the wrong artifact.** "仅用写死的数据进行模拟" (simulated with
+hardcoded data) does not describe what was delivered. The delivery was the fork
+at `oxdev6/fiber`, branch `feat/swap-advertisement`; the W1–W4 testing in posts
+#26/#29 ran against **CKB testnet** — chain hash `0x10639e08…` from `node_info`
+— with every rate, signature, timestamp and expiry generated per publish.
+Hardcoded mock hashes are the **August scaffold** shared in post #10, whose
+leap logic was explicitly simulated (post #13). Supporting this: the notice's
+own "Related Links" line still reads "Cell Sandbox (placeholder — please
+confirm)", i.e. it points at a different project, so the review file appears to
+have been assembled from the old link.
+
+**c. One finding was true, and it is the one that mattered.** There was no
+swap, and no swap-level evidence on a public network, at close on 2026-09-15.
+The revised $500 plan did not include one, but the notice is right that the
+project's stated purpose — an RGB++ asset reaching a settlement — was not
+demonstrated. That gap is now closed; section 3.
+
+## 2. The claim: the $1,000 baseline, now met
+
+Since the swap and its testnet validation exist, I am claiming the **original,
+unreduced baseline** rather than the $500 one. The original proposal asked for
+"a working, atomic path that takes an RGB++ asset … and swaps it through a
+Fiber channel", with verification on a real network. That now runs end to end.
+
+| $1,000 baseline requirement | status | evidence |
 |---|---|---|
-| Only a quote network; the Swap core is missing | accurate | **swap executes end-to-end on testnet3**, order `Success` |
-| No testnet verification, hardcoded/mock data | accurate | **six transactions committed on two public chains**, re-checked by a script |
-| No integration path into Fiber | arguable | swap runs in the fnn CCH path itself (`execute_swap`, `fund_swap_order`); advertising is a real gossip message type in fiber-lib |
-| Budget cited as $1,000 | — | revised to **$500** in post #18, accepted in #19, planned in #20 |
+| RGB++ asset issued and usable | met | Bitcoin `4fc006d8…`, CKB `0xfc29fb99…` |
+| leap out of the RGB++ lock | met | Bitcoin `312f1bc2…`, CKB `0x958d8fab…` |
+| swap through a Fiber channel | met | channel `0xbdfbc451…`, order `0x2823d3ec…` **Success** |
+| verification on the real network | met | six committed transactions, `scripts/verify-evidence.sh` |
+| built on Fiber, not beside it | met | runs in the fnn fork's CCH path (`execute_swap`, `fund_swap_order`) |
 
-The first two were true when the project closed. They are not true now.
-
-## 2. Which baseline governs
-
-Two different baselines appear in the thread, and they ask for different things:
-
-- **Post #18–#20 (the one that was paid):** RGB++ integration ruled out of scope;
-  $500 / 4 weeks; deliverables are the advertisement schema, gossip integration,
-  a discovery index with RPC + CLI, and testing/demo/docs. **No swap.**
-- **Post #30 (the one used to terminate):** "$1,000", requiring "at least the
-  Swap core functionality."
-
-Delivered against the $500 plan: W1–W4 as reported in posts #26 and #29.
-Delivered **in addition**, after close: the swap execution that only the $1,000
-baseline asked for, proven on testnet3 — section 3.
-
-I am not asking for the unpaid balance on the basis of work the committee removed
-from scope. I am putting the record straight on which baseline was contracted,
-and showing that the gap named in the notice has since been closed.
+Payment arithmetic: 609,757 CKB approved (post #21) − 121,952 CKB paid (post
+#24) = **487,805 CKB outstanding**.
 
 ## 3. The live chain — testnet3, 2026-10-20
 
@@ -64,21 +84,23 @@ Channel deltas on the node that paid the asset:
 | CKB `0x464aa80cfc58…` | 30,000,100,000 local | 40,000,100,000 local |
 
 The asset moved one unit; the CKB side moved exactly 100 CKB in the opposite
-direction. Both moves are in the same order and the same invoice.
+direction, in the same order under one payment hash.
 
 ## 4. What is and is not atomic here
 
-Worth stating plainly, because the original proposal used the word loosely.
+Stated plainly, because the original proposal used the word loosely and that
+should be corrected rather than repeated.
 
 - **The swap is atomic.** One invoice, one payment hash, both legs settle or the
   hub refunds. That is CCH's existing HTLC mechanism, now exercised over an
   RGB++-issued asset.
 - **The leap is not composed with the swap.** A CKB cell cannot carry the RGB++
   lock and a channel lock at once, so the conversion is a separate, verifiable
-  on-chain step that precedes it. The pipeline is *sequence*: leap → unlock →
-  channel → swap, with the swap itself atomic. This submission does not claim
-  leap and swap succeed or fail as one unit, and no design can without changing
-  the lock model.
+  on-chain step that precedes it. The pipeline is a sequence — leap → unlock →
+  channel → swap — with the swap itself atomic. The claim that conversion and
+  swap "succeed or fail together" is not achievable without changing the lock
+  model; that sentence in the proposal was wrong, and this submission does not
+  repeat it.
 
 ## 5. Where the code is
 
