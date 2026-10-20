@@ -4,3 +4,15 @@ target/
 /tmp/
 .DS_Store
 node_modules/
+leap-sidecar/.btc-mnemonic
+.btc-mnemonic
+leap-sidecar/.ckb-key
+.ckb-key
+localnet/api-token
+localnet/e2e-state.json
+localnet/e2e-run.log
+localnet/ckb-data/
+localnet/btc/
+localnet/btc-signet/
+localnet/*.log
+*.pid
