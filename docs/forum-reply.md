@@ -73,9 +73,6 @@ no funds moved) and the timeout handling is unit-tested; I did not stage a live
 mid-flight timeout.
 
 So the request: judge the project against the $1,000 baseline, and release the
-outstanding 487,805 CKB (609,757 approved minus 121,952 paid) if that baseline
-is met. If the committee would rather leave the project closed, I would ask
-that the thread record which baseline governed, because the notice and the
-payment history do not agree.
+outstanding amount.
 
 Carl (@oxdev6)
