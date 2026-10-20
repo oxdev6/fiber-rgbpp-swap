@@ -35,7 +35,7 @@ The notice's own "Related Links" line still reads "Cell Sandbox (placeholder
 |---|---|---|
 | 1 | `SwapAdvertisement` schema, fork pinned, two testnet nodes | [`crates/fiber-lib/src/fiber/gossip.rs`](https://github.com/oxdev6/fiber/blob/feat/swap-advertisement/crates/fiber-lib/src/fiber/gossip.rs) |
 | 2 | signing, verification, expiry, gossip relay | [`crates/fiber-lib/src/fiber/network.rs`](https://github.com/oxdev6/fiber/blob/feat/swap-advertisement/crates/fiber-lib/src/fiber/network.rs) |
-| 3 | discovery index, RPC, CLI | [`crates/fiber-lib/src/fiber/swap_ad_index.rs`](https://github.com/oxdev6/fiber/blob/feat/swap-advertisement/crates/fiber-lib/src/fiber/swap_ad_index.rs), [`crates/fiber-lib/src/rpc/swap_ad.rs`](https://github.com/oxdev6/fiber/blob/feat/swap-advertisement/crates/fiber-lib/src/rpc/swap_ad.rs) |
+| 3 | discovery index, RPC, CLI | [`crates/fiber-lib/src/fiber/swap_advertisement.rs`](https://github.com/oxdev6/fiber/blob/feat/swap-advertisement/crates/fiber-lib/src/fiber/swap_advertisement.rs), [`crates/fiber-lib/src/rpc/swap_ad.rs`](https://github.com/oxdev6/fiber/blob/feat/swap-advertisement/crates/fiber-lib/src/rpc/swap_ad.rs) |
 | 4 | tests, demo, docs | [running a node](https://github.com/oxdev6/fiber-rgbpp-swap/blob/main/docs/TESTING.md), [market board](https://github.com/oxdev6/fiber-rgbpp-swap) |
 
 ## 3. Delivered beyond it: the swap, on testnet3
