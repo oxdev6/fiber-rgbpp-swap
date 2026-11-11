@@ -54,6 +54,8 @@ On 2026-10-20, one asset, issued fresh for the run:
 Then in Fiber:
 
 - channel `0xbdfbc4511046bbef056bd3173b9a10083b898f734b660cd16b4f39c13d9a4cf8`
+- channel funding tx `0x4b7d0e83de778b833d43219d1793cacbd26c92ec760c916bb7438e8ec9018173`
+  (output 0: 21,000,000 units of the asset in a 2-of-2 FundingLock cell; still live)
 - advertisement `0x0668dd84ada4a4597deb45c9d705516e7ceb71fe48e1608aaa4ebdb4b93fdcd5`, rate 100.0, quote CKB
 - payment hash `0x2823d3ec5242502c2e0d3303663c56ff91ba765ad3144e462fc8de8d3b67cdb0`
 - order **Success**, 1 unit of the asset for 100 CKB
@@ -87,11 +89,16 @@ bash scripts/verify-evidence.sh
 
 The script reads
 [`docs/evidence-state.json`](https://github.com/oxdev6/fiber-rgbpp-swap/blob/main/docs/evidence-state.json),
-queries the public CKB and Bitcoin testnet APIs for each hash, prints the block
-height and explorer URL, and exits non-zero if anything is missing. It does not
-touch my machines and needs no call with me.
+queries the public CKB and Bitcoin testnet APIs for each hash, checks that the
+channel funding output carries the advertised asset, prints the block height
+and explorer URL, and exits non-zero if anything is missing. It does not touch
+my machines and needs no call with me.
 
-Last run: six of six `OK`, exit 0.
+Last run: seven of seven `OK`, exit 0.
+
+The swap order's `Success` is still self-reported by the node (see
+[`docs/evidence-upgrade.md`](evidence-upgrade.md) for the artifacts that would
+make it independently checkable).
 
 ## 5. Corrections to the original proposal
 

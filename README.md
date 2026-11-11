@@ -12,7 +12,8 @@ testnet3:
 - swap order `0x2823d3ec…` — **Success**, 1 unit of asset `0xeb4963db…` for 100 CKB,
   over channel `0xbdfbc451…`
 - the lineage behind it (issuance → leap → unlock → transfer) is six committed
-  transactions across Bitcoin and CKB; every hash is in
+  transactions across Bitcoin and CKB; the channel funding tx
+  `0x4b7d0e83…` is checked as well, and every hash is in
   [docs/submission.md](docs/submission.md)
 - re-check all of them with `bash scripts/verify-evidence.sh`
 - operate or reproduce the pipeline with `bash scripts/e2e-run.sh`

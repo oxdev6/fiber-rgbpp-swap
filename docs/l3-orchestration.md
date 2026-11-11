@@ -31,6 +31,7 @@ and one node restart dominated). All nine stages completed without manual steps.
     leap_ckb_tx     0x958d8fab158551f19b3f83d66c9c2fddc7e46f4d1a0867a4515420973c245f1b
     unlock_tx       0xe9fb7df0aa465c3d6e605244ab3551b93dbad53c1b7550b92950d02d324f91ef
     transfer_tx     0xe5eb776a53b360aa14378d319726a05bca3a8683c004379185fa10cec9909ed1
+    channel_funding 0x4b7d0e83de778b833d43219d1793cacbd26c92ec760c916bb7438e8ec9018173
     udt_channel     0xbdfbc4511046bbef056bd3173b9a10083b898f734b660cd16b4f39c13d9a4cf8
     ad_hash         0x0668dd84ada4a4597deb45c9d705516e7ceb71fe48e1608aaa4ebdb4b93fdcd5  (rate 100.0)
     payment_hash    0x2823d3ec5242502c2e0d3303663c56ff91ba765ad3144e462fc8de8d3b67cdb0

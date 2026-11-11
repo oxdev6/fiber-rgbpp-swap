@@ -6,6 +6,7 @@
   "leap_btc_tx": "312f1bc29e7c7770ddfb2cc8fb91267f3026126ba8242eadebde3682f60370bb",
   "unlock_tx": "0xe9fb7df0aa465c3d6e605244ab3551b93dbad53c1b7550b92950d02d324f91ef",
   "transfer_tx": "0xe5eb776a53b360aa14378d319726a05bca3a8683c004379185fa10cec9909ed1",
+  "channel_funding_tx": "0x4b7d0e83de778b833d43219d1793cacbd26c92ec760c916bb7438e8ec9018173",
   "udt_channel": "0xbdfbc4511046bbef056bd3173b9a10083b898f734b660cd16b4f39c13d9a4cf8",
   "ad_hash": "0x0668dd84ada4a4597deb45c9d705516e7ceb71fe48e1608aaa4ebdb4b93fdcd5",
   "ad_rate": "0x2540be400",
